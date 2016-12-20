@@ -1,0 +1,4 @@
+# nesasm debug extension
+*.fns
+# build extension
+*.nes
