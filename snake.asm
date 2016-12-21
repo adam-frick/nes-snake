@@ -45,7 +45,7 @@ SNAKE_VY    = $20
 
 SNAKE_V_I   = $00
 SNAKE_DIR_I = $00
-SNAKE_LEN_I = $00
+SNAKE_LEN_I = $04
 
 HEAD_I      = $2350
 
@@ -302,14 +302,27 @@ UDSnakePos_:
 
 UDSnakePosSet:
 
-  clc
-  lda snake_len
-  rol a
-  tax
-  lda head_hi
+  ldx snake_len
+  dex 
+UDSnakePosSetLoop:
+  cpx #$ff
+  beq UDSnakePosSetLoop_
+  lda tail_hi,x
+  inx
   sta tail_hi,x
-  lda head_lo
+  dex
+  lda tail_lo,x
+  inx
   sta tail_lo,x
+  dex
+  dex
+  jmp UDSnakePosSetLoop
+UDSnakePosSetLoop_:
+
+  lda head_hi
+  sta tail_hi
+  lda head_lo
+  sta tail_lo
   
   lda snake_v
   cmp #$01
@@ -394,17 +407,13 @@ UDSnakeBG:
   lda $2002 ; ready to write to PPU
 
   
-  clc
-  lda snake_len
-  rol a
-  tax
+  ldx snake_len
   lda tail_hi, x
   sta $2006
   lda tail_lo, x
   sta $2006
   lda #BG_CLR
   sta $2007
-  
 
   lda head_hi
   sta $2006
