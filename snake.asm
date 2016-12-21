@@ -199,6 +199,14 @@ NMI:
   lda #%00010010    ; allow PPU editing outside vblank
   sta $2001
 
+Update:
+  jsr UDController
+  lda game_state
+  cmp #PLAY_STATE
+  jsr UDSnakePos
+
+
+;; check if on update frame
   clc
   lda game_frame
   adc #$01
@@ -210,14 +218,8 @@ NMI:
 
 NMIMain:
 
-Update:
-  jsr UDController
-
-  lda game_state
-  cmp #PLAY_STATE
-  beq UDSnake
-
 Draw:
+  jsr UDSnakePosSet
   jsr UDSprite
   jsr UDSnakeBG
 
@@ -241,7 +243,6 @@ NMIMain_:
 ;-------------------------------------------------
 
 UDSnake:    ;;;;;
-
 
 ; no collision or optimisation yet
 UDSnakePos:
@@ -296,8 +297,8 @@ UDSnakePosNU:
   sta snake_dir
   pla
 UDSnakePosND:
-
 UDSnakePos_:
+  rts
 
 UDSnakePosSet:
 
@@ -365,8 +366,7 @@ UDSnakePosSetU:
   jmp UDSnakePosSet_
 
 UDSnakePosSet_:
-
-  jmp Draw
+  rts
 
 
 UDSprite:
