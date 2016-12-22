@@ -60,9 +60,9 @@ UDSnakePosSet:
 
   ldx snake_len
   dex 
-UDSnakePosSetLoop:
-  cpx #$ff
-  beq UDSnakePosSetLoop_
+UDSnakePosSetLoop:    ; todo: quite expensive, doesn't keep up with ~35+,
+  cpx #$ff            ; could update over course of 2 vblanks (30fps max)
+  beq UDSnakePosSetLoop_ 
   lda tail_hi,x
   inx
   sta tail_hi,x
@@ -91,12 +91,21 @@ UDSnakePosSetX:
 
 UDSnakePosSetR:
   lda head_lo      
+  sta mod_a
   clc              
   adc #$01    
   sta head_lo     
+
   lda head_hi    
   adc #$00      
   sta head_hi  
+
+  lda #ROW_LEN          ; allows snake to wrap horizontally (R) 
+  sta mod_n
+  jsr Modulus
+  cmp #$00
+  beq UDSnakePosSetU
+
   jmp UDSnakePosSet_
 
 UDSnakePosSetL:
@@ -104,9 +113,18 @@ UDSnakePosSetL:
   sec          
   sbc #$01    
   sta head_lo  
+  sta mod_a
+
   lda head_hi 
   sbc #$00   
   sta head_hi 
+
+  lda #ROW_LEN          ; allows snake to wrap horizontally (L)
+  sta mod_n
+  jsr Modulus
+  cmp #$00
+  beq UDSnakePosSetD
+
   jmp UDSnakePosSet_
 
 UDSnakePosSetY:
@@ -115,6 +133,26 @@ UDSnakePosSetY:
   beq UDSnakePosSetU
 
 UDSnakePosSetD:
+
+UDSnakePosSetDW:        ; allows snake to wrap vertically (D)
+  lda head_hi
+  cmp #HIGH(HEAD_B_MIN)
+  bne UDSnakePosSetDW_
+
+  lda head_lo           ; check if lb is outside bottom row range
+  cmp #LOW(HEAD_B_MIN)
+  bcc UDSnakePosSetDW_
+
+  lda head_lo
+  sec
+  sbc #LOW(HEAD_WRAP)
+  sta head_lo
+  lda head_hi
+  sbc #HIGH(HEAD_WRAP)
+  sta head_hi
+  jmp UDSnakePosSet_
+UDSnakePosSetDW_:
+
   lda head_lo   
   clc          
   adc #$20    
@@ -122,9 +160,32 @@ UDSnakePosSetD:
   lda head_hi 
   adc #$00   
   sta head_hi 
+
+
   jmp UDSnakePosSet_
 
 UDSnakePosSetU:
+
+UDSnakePosSetUW:        ; allows snake to wrap vertically (U)
+  lda head_hi
+  cmp #HIGH(HEAD_T_MAX)
+  bne UDSnakePosSetUW_
+
+  lda head_lo           ; check if lb is outside top row range
+  cmp #LOW(HEAD_T_MAX)
+  bcs UDSnakePosSetUW_
+
+  lda head_lo
+  clc
+  adc #LOW(HEAD_WRAP)
+  sta head_lo
+  lda head_hi
+  adc #HIGH(HEAD_WRAP)
+  sta head_hi
+  jmp UDSnakePosSet_
+UDSnakePosSetUW_:
+
+
   lda head_lo   
   sec          
   sbc #$20    
@@ -159,7 +220,6 @@ UDSnakeLenSet_:
   sta snake_len_v
   rts
 
-  
 UDSprite:
   rts 
 
@@ -198,5 +258,15 @@ UDSnakeBG:
 
   lda #SNAKE_CLR
   sta $2007
+
+  rts
+
+Modulus:
+  lda mod_a
+  sec
+ModulusLoop:
+  sbc mod_n
+  bcs ModulusLoop
+  adc #$01
 
   rts

@@ -25,7 +25,8 @@ Update:
   jmp NMIMain_
 
 NMIMain:
-
+  lda #$00
+  sta game_frame
 Draw:
   jsr UDSnakeLenSet
   jsr UDSnakePosSet

@@ -14,24 +14,24 @@ snake_len_v .rs 1
 head_lo     .rs 1
 head_hi     .rs 1
 
-tail_lo     .rs 30
-tail_hi     .rs 30
+tail_lo     .rs 32 ; max tail len
+tail_hi     .rs 32
 
 buttons     .rs 1
 points      .rs 1
 
 ptr_lo      .rs 1
 ptr_hi      .rs 1
+mod_a       .rs 1
+mod_n       .rs 1
 
 ;; CONSTS
 
 PLAY_STATE  = $01
 UPF         = $04 ; 15fps (NTSC)
 
-WALL_U      = $05
-WALL_D      = $e0
-WALL_L      = $04
-WALL_R      = $fa 
+ROW_LEN     = $20
+COL_LEN     = $1d
 
 SNAKE_VX    = $01
 SNAKE_VY    = $20
@@ -39,8 +39,12 @@ SNAKE_VY    = $20
 SNAKE_V_I   = $00
 SNAKE_DIR_I = $00
 SNAKE_LEN_I = $04
-SNAKE_LEN_MAX  = $1d
+SNAKE_LEN_MAX  = $1f  ; 32 - 1 
 
+HEAD_B_MIN  = $2380 ; non-inclusive range for head wrapping
+HEAD_T_MAX  = $2040
+
+HEAD_WRAP   = $0360
 HEAD_I      = $2350
 
 B_A         = %10000000
