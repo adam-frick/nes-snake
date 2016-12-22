@@ -104,6 +104,17 @@ LoadBackgroundIL:
   lda #HIGH(HEAD_I)
   sta head_hi
 
+  lda #FRUIT_TILE_I
+  sta fruit_tile
+  lda #FRUIT_ATTR_I
+  sta fruit_attr
+  lda #FRUIT_SEED_I
+  sta fruit_seed
+  sta fruit_x
+  sec
+  sbc #$01
+  sta fruit_y
+
 ;; init state
   lda #PLAY_STATE
   sta game_state

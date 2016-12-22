@@ -139,7 +139,7 @@ UDSnakePosSetDW:        ; allows snake to wrap vertically (D)
   cmp #HIGH(HEAD_B_MIN)
   bne UDSnakePosSetDW_
 
-  lda head_lo           ; check if lb is outside bottom row range
+  lda head_lo           ; check if lB is outside bottom row range
   cmp #LOW(HEAD_B_MIN)
   bcc UDSnakePosSetDW_
 
@@ -171,7 +171,7 @@ UDSnakePosSetUW:        ; allows snake to wrap vertically (U)
   cmp #HIGH(HEAD_T_MAX)
   bne UDSnakePosSetUW_
 
-  lda head_lo           ; check if lb is outside top row range
+  lda head_lo           ; check if lB is outside top row range
   cmp #LOW(HEAD_T_MAX)
   bcs UDSnakePosSetUW_
 
@@ -180,7 +180,7 @@ UDSnakePosSetUW:        ; allows snake to wrap vertically (U)
   adc #LOW(HEAD_WRAP)
   sta head_lo
   lda head_hi
-  adc #HIGH(HEAD_WRAP)
+  Adc #HIGH(HEAD_WRAP)
   sta head_hi
   jmp UDSnakePosSet_
 UDSnakePosSetUW_:
@@ -220,8 +220,59 @@ UDSnakeLenSet_:
   sta snake_len_v
   rts
 
-UDSprite:
-  rts 
+UDFruit:
+  lda $2002
+  and #%01000000
+  cmp #%01000000
+  bne UDFruit_
+  lda #$01
+  sta fruit_hit
+  sta snake_len_v
+
+UDFruit_:
+  rts
+
+UDFruitSet:
+  lda fruit_hit
+  cmp #$01
+  bne UDFruitSet_
+
+  lda #$00
+  sta fruit_hit
+
+UDFruitX:
+  jsr Random
+  lda fruit_seed
+  and #%11111000  ; only multiple of 8
+  sta fruit_x
+
+UDFruitY:
+  jsr Random
+  lda fruit_seed
+  cmp #$d1        ; within screen range
+  bcc UDFruitY_
+  sec
+  sbc #$20        ; slight edge tile bias
+UDFruitY_:
+  and #%11111000  ; only multiple of 8
+  sec
+  sbc #$01
+  sta fruit_y  
+
+UDFruitSet_:
+  rts
+
+DrawFruit:
+  lda fruit_y
+  sta $0200
+  lda fruit_tile
+  sta $0201
+  lda fruit_attr
+  sta $0202
+  lda fruit_x
+  sta $0203
+
+  rts
 
 UDController:
   lda #$01  ; latch controllers
@@ -239,9 +290,9 @@ UDControllerLoop:
   
   rts
 
-UDSnakeBG:
+DrawSnake:
 
-  lda $2002 ; ready to write to PPU
+  lda $2002 ; PPU ready
   
   ldx snake_len
   lda tail_hi, x
@@ -268,5 +319,25 @@ ModulusLoop:
   sbc mod_n
   bcs ModulusLoop
   adc #$01
+
+  rts
+
+UpdateSeed:   ; once per vblank
+  lda fruit_seed
+  clc
+  adc #$01
+  sta fruit_seed
+  rts
+
+Random:   ; LFSR algorithm
+  lda fruit_seed
+  beq RandomEOR
+  asl a
+  beq Random_
+  bcc Random_
+RandomEOR:
+  eor #$1d
+Random_:
+  sta fruit_seed
 
   rts

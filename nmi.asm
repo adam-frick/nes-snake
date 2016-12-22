@@ -3,7 +3,6 @@ NMI:
   sta $2003   ;RAM lb
   lda #$02
   sta $4014   ;RAM hb, start transfer
-
   lda #%00010010    ; allow PPU editing outside vblank
   sta $2001
 
@@ -27,12 +26,16 @@ Update:
 NMIMain:
   lda #$00
   sta game_frame
-Draw:
-  jsr UDSnakeLenSet
-  jsr UDSnakePosSet
-  jsr UDSprite
-  jsr UDSnakeBG
 
+Draw:
+  jsr UDSnakePosSet
+  jsr UpdateSeed
+  jsr UDFruit
+  jsr UDFruitSet
+  jsr UDSnakeLenSet
+  jsr DrawFruit
+  jsr DrawSnake
+  
 NMIMain_:
 
 ;; PPU cleanup (NES stats)
