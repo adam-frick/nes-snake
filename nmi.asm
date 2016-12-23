@@ -1,6 +1,6 @@
 NMI:
   lda #$00
-  sta $2003   ;RAM lb
+  sta $2003   ;RAM lb lda #$02
   lda #$02
   sta $4014   ;RAM hb, start transfer
   lda #%00010010    ; allow PPU editing outside vblank
@@ -27,6 +27,24 @@ NMIMain:
   lda #$00
   sta game_frame
 
+NMICheckCln:
+  lda snake_dead
+  cmp #$01
+  beq SnakeDeath
+  lda $2002
+  and #%01000000
+  cmp #%01000000
+  bne Draw
+
+  lda #$01
+  sta snake_dead
+
+SnakeDeath:
+  jsr UDSnakePosSet
+  jsr DrawSnake
+  jsr UDSnakeDeath
+  jmp NMIMain_
+
 Draw:
   jsr UDSnakePosSet
   jsr UpdateSeed
@@ -35,7 +53,8 @@ Draw:
   jsr UDSnakeLenSet
   jsr DrawFruit
   jsr DrawSnake
-  
+  jmp NMIMain_
+
 NMIMain_:
 
 ;; PPU cleanup (NES stats)
@@ -47,5 +66,5 @@ NMIMain_:
   sta $2005
   sta $2005
 
-;; interrupt return
+; interrupt return
   rti

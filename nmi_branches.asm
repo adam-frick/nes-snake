@@ -1,6 +1,5 @@
 UDSnake: 
 
-; no collision or optimisation yet
 UDSnakePos:
   lda buttons
   and #$0F  ; only check dir pad
@@ -80,6 +79,12 @@ UDSnakePosSetLoop_:
   lda head_lo
   sta tail_lo
   
+  lda snake_dead
+  cmp #$01
+  bne UDSnakePosSetCont
+  rts
+
+UDSnakePosSetCont:
   lda snake_v
   cmp #$01
   beq UDSnakePosSetY
@@ -90,6 +95,10 @@ UDSnakePosSetX:
   beq UDSnakePosSetL
 
 UDSnakePosSetR:
+
+  lda #$01        ; if reach edge, sprite vert update ignored
+  sta ud_bg_only
+
   lda head_lo      
   sta mod_a
   clc              
@@ -100,15 +109,24 @@ UDSnakePosSetR:
   adc #$00      
   sta head_hi  
 
+  lda snake_x   ; sprite
+  adc #TILE_LEN
+  sta snake_x
+
   lda #ROW_LEN          ; allows snake to wrap horizontally (R) 
   sta mod_n
   jsr Modulus
   cmp #$00
-  beq UDSnakePosSetU
-
-  jmp UDSnakePosSet_
+  bne UDSnakePosSetR_
+  jmp UDSnakePosSetU    ; branch out of range
+UDSnakePosSetR_:
+  jmp UDSnakePosSet_ 
 
 UDSnakePosSetL:
+
+  lda #$01        ; if reach edge, sprite vert update ignored
+  sta ud_bg_only
+
   lda head_lo   
   sec          
   sbc #$01    
@@ -118,6 +136,10 @@ UDSnakePosSetL:
   lda head_hi 
   sbc #$00   
   sta head_hi 
+
+  lda snake_x   ; sprite
+  sbc #TILE_LEN
+  sta snake_x
 
   lda #ROW_LEN          ; allows snake to wrap horizontally (L)
   sta mod_n
@@ -150,6 +172,10 @@ UDSnakePosSetDW:        ; allows snake to wrap vertically (D)
   lda head_hi
   sbc #HIGH(HEAD_WRAP)
   sta head_hi
+
+  lda #SNAKE_SPR_T    ; sprite
+  sta snake_y
+
   jmp UDSnakePosSet_
 UDSnakePosSetDW_:
 
@@ -161,6 +187,12 @@ UDSnakePosSetDW_:
   adc #$00   
   sta head_hi 
 
+  lda ud_bg_only
+  cmp #$01
+  beq UDSnakePosSet_
+  lda snake_y   ; sprite
+  adc #TILE_LEN
+  sta snake_y
 
   jmp UDSnakePosSet_
 
@@ -180,11 +212,14 @@ UDSnakePosSetUW:        ; allows snake to wrap vertically (U)
   adc #LOW(HEAD_WRAP)
   sta head_lo
   lda head_hi
-  Adc #HIGH(HEAD_WRAP)
+  adc #HIGH(HEAD_WRAP)
   sta head_hi
+
+  lda #SNAKE_SPR_B    ; sprite
+  sta snake_y
+
   jmp UDSnakePosSet_
 UDSnakePosSetUW_:
-
 
   lda head_lo   
   sec          
@@ -193,9 +228,21 @@ UDSnakePosSetUW_:
   lda head_hi 
   sbc #$00   
   sta head_hi 
+
+  lda ud_bg_only
+  cmp #$01
+  beq UDSnakePosSet_
+  lda snake_y   ; sprite
+  sec
+  sbc #TILE_LEN
+  sta snake_y
+
   jmp UDSnakePosSet_
 
 UDSnakePosSet_:
+  lda #$00
+  sta ud_bg_only
+
   rts
 
 UDSnakeLen:
@@ -221,9 +268,11 @@ UDSnakeLenSet_:
   rts
 
 UDFruit:
-  lda $2002
-  and #%01000000
-  cmp #%01000000
+  lda snake_x
+  cmp fruit_x
+  bne UDFruit_
+  lda snake_y
+  cmp fruit_y
   bne UDFruit_
   lda #$01
   sta fruit_hit
@@ -264,14 +313,34 @@ UDFruitSet_:
 
 DrawFruit:
   lda fruit_y
-  sta $0200
+  sta $0204
   lda fruit_tile
-  sta $0201
+  sta $0205
   lda fruit_attr
-  sta $0202
+  sta $0206
   lda fruit_x
-  sta $0203
+  sta $0207
+  rts
 
+UDSnakeDeath:
+  lda tail_hi
+  cmp head_hi 
+  bne UDSnakeDeath_
+  lda tail_lo
+  cmp head_lo
+  bne UDSnakeDeath_
+
+  lda snake_y
+  sta $0200
+  lda #$00
+  sta $0201
+  lda snake_attr
+  sta $0202
+  lda snake_x
+  sta $0203
+  rts
+
+UDSnakeDeath_:
   rts
 
 UDController:
@@ -291,9 +360,16 @@ UDControllerLoop:
   rts
 
 DrawSnake:
-
   lda $2002 ; PPU ready
   
+  lda tail_hi
+  sta $2006
+  lda tail_lo
+  sta $2006
+
+  lda #SNAKE_CLR
+  sta $2007
+
   ldx snake_len
   lda tail_hi, x
   sta $2006
@@ -302,42 +378,12 @@ DrawSnake:
   lda #BG_CLR
   sta $2007
 
-  lda head_hi
-  sta $2006
-  lda head_lo
-  sta $2006
-
-  lda #SNAKE_CLR
-  sta $2007
-
-  rts
-
-Modulus:
-  lda mod_a
-  sec
-ModulusLoop:
-  sbc mod_n
-  bcs ModulusLoop
-  adc #$01
-
-  rts
-
-UpdateSeed:   ; once per vblank
-  lda fruit_seed
-  clc
-  adc #$01
-  sta fruit_seed
-  rts
-
-Random:   ; LFSR algorithm
-  lda fruit_seed
-  beq RandomEOR
-  asl a
-  beq Random_
-  bcc Random_
-RandomEOR:
-  eor #$1d
-Random_:
-  sta fruit_seed
-
+  lda snake_y
+  sta $0200
+  lda snake_tile
+  sta $0201
+  lda snake_attr
+  sta $0202
+  lda snake_x
+  sta $0203
   rts

@@ -6,6 +6,7 @@
   .include "var.asm"  ; var declaration
   .include "init.asm" ; sets up PPU
   .include "nmi.asm"  ; runs each vblank
+  .include "math.asm" ; modulus and RNG 
   .include "nmi_branches.asm" ; updates snake
 
   .include "tiles.asm"

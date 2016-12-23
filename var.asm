@@ -11,6 +11,14 @@ snake_dir 	.rs 1
 snake_len   .rs 1
 snake_len_v .rs 1
 
+snake_y     .rs 1
+snake_tile  .rs 1
+snake_attr  .rs 1
+snake_x     .rs 1
+
+snake_dead  .rs 1
+ud_bg_only  .rs 1
+
 head_lo     .rs 1
 head_hi     .rs 1
 
@@ -46,14 +54,17 @@ SNAKE_VY    = $20
 
 SNAKE_V_I   = $00
 SNAKE_DIR_I = $00
-SNAKE_LEN_I = $04
+SNAKE_LEN_I = $00
 SNAKE_LEN_MAX  = $1f  ; 32 - 1 
 
 HEAD_B_MIN  = $2380 ; non-inclusive range for head wrapping
 HEAD_T_MAX  = $2040
 
 HEAD_WRAP   = $0360
-HEAD_I      = $2350
+HEAD_I      = $2020
+
+SNAKE_X_I   = $00
+SNAKE_Y_I   = $07
 
 B_A         = %10000000
 B_B         = %01000000
@@ -70,9 +81,15 @@ BG_CLR      = $00
 PPU_PALETTE = $3f00
 PPU_BACKGROUND = $2000
 
-FRUIT_TILE_I  = $01
+FRUIT_TILE_I  = $04
 FRUIT_ATTR_I  = $00
 FRUIT_SEED_I  = $80
+
+SNAKE_TILE_I  = $03
+SNAKE_ATTR_I  = $00
+
+SNAKE_SPR_T   = $07
+SNAKE_SPR_B   = $df
 
 TILE_LEN    = $08
 TILE_MOD    = $20

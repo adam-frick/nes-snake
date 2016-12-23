@@ -115,6 +115,15 @@ LoadBackgroundIL:
   sbc #$01
   sta fruit_y
 
+  lda #SNAKE_Y_I
+  sta snake_y
+  lda #SNAKE_TILE_I
+  sta snake_tile
+  lda #SNAKE_ATTR_I
+  sta snake_attr
+  lda #SNAKE_X_I
+  sta snake_x
+
 ;; init state
   lda #PLAY_STATE
   sta game_state
