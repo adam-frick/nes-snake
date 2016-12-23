@@ -1,5 +1,4 @@
 UDSnake: 
-
 UDSnakePos:
   lda buttons
   and #$0F  ; only check dir pad
@@ -57,20 +56,25 @@ UDSnakePos_:
 
 UDSnakePosSet:
 
-  ldx snake_len
-  dex 
+  lda snake_len
+  tay
+  sec
+  sbc #$01
+  tax
 UDSnakePosSetLoop:    ; todo: quite expensive, doesn't keep up with ~35+,
   cpx #$ff            ; could update over course of 2 vblanks (30fps max)
   beq UDSnakePosSetLoop_ 
+
   lda tail_hi,x
-  inx
-  sta tail_hi,x
-  dex
+  sta tail_hi,y
   lda tail_lo,x
-  inx
-  sta tail_lo,x
+  sta tail_lo,y
+  
+  lda tail_dir,x
+  sta tail_dir,y
+
   dex
-  dex
+  dey
   jmp UDSnakePosSetLoop
 UDSnakePosSetLoop_:
 
@@ -78,6 +82,10 @@ UDSnakePosSetLoop_:
   sta tail_hi
   lda head_lo
   sta tail_lo
+
+  lda snake_tile
+  eor #%00000001      ; offset dir
+  sta tail_dir
   
   lda snake_dead
   cmp #$01
@@ -112,6 +120,8 @@ UDSnakePosSetR:
   lda snake_x   ; sprite
   adc #TILE_LEN
   sta snake_x
+  lda #SNAKE_TILE_R
+  sta snake_tile
 
   lda #ROW_LEN          ; allows snake to wrap horizontally (R) 
   sta mod_n
@@ -140,6 +150,8 @@ UDSnakePosSetL:
   lda snake_x   ; sprite
   sbc #TILE_LEN
   sta snake_x
+  lda #SNAKE_TILE_L
+  sta snake_tile
 
   lda #ROW_LEN          ; allows snake to wrap horizontally (L)
   sta mod_n
@@ -190,9 +202,12 @@ UDSnakePosSetDW_:
   lda ud_bg_only
   cmp #$01
   beq UDSnakePosSet_
+
   lda snake_y   ; sprite
   adc #TILE_LEN
   sta snake_y
+  lda #SNAKE_TILE_D
+  sta snake_tile
 
   jmp UDSnakePosSet_
 
@@ -236,6 +251,8 @@ UDSnakePosSetUW_:
   sec
   sbc #TILE_LEN
   sta snake_y
+  lda #SNAKE_TILE_U
+  sta snake_tile
 
   jmp UDSnakePosSet_
 
@@ -323,12 +340,21 @@ DrawFruit:
   rts
 
 UDSnakeDeath:
+  lda snake_len
+  inx
   lda tail_hi
-  cmp head_hi 
+  cmp tail_hi, x
   bne UDSnakeDeath_
   lda tail_lo
-  cmp head_lo
+  cmp tail_lo, x
   bne UDSnakeDeath_
+
+  lda tail_hi, x
+  sta $2006
+  lda tail_lo, x
+  sta $2006
+  lda #BG_CLR
+  sta $2007
 
   lda snake_y
   sta $0200
@@ -338,6 +364,8 @@ UDSnakeDeath:
   sta $0202
   lda snake_x
   sta $0203
+
+
   rts
 
 UDSnakeDeath_:
@@ -362,6 +390,13 @@ UDControllerLoop:
 DrawSnake:
   lda $2002 ; PPU ready
   
+
+DrawSnakeBG:
+
+  lda snake_dead
+  cmp #$01
+  beq DrawSnakeBG_
+
   lda tail_hi
   sta $2006
   lda tail_lo
@@ -369,6 +404,7 @@ DrawSnake:
 
   lda #SNAKE_CLR
   sta $2007
+DrawSnakeBG_:
 
   ldx snake_len
   lda tail_hi, x
@@ -378,6 +414,25 @@ DrawSnake:
   lda #BG_CLR
   sta $2007
 
+DrawSnakeBGTaper:
+  dex
+  lda tail_hi, x
+  sta $2006
+  lda tail_lo, x
+  sta $2006
+
+  cpx #$00
+  beq BGTaperSmall
+  dex
+BGTaperSmall:
+  lda tail_dir, x
+  sta $2007
+
+DrawSnakeSprite:
+  lda snake_dead
+  cmp #$01
+  beq DrawSnakeSprite_
+
   lda snake_y
   sta $0200
   lda snake_tile
@@ -386,4 +441,5 @@ DrawSnake:
   sta $0202
   lda snake_x
   sta $0203
+DrawSnakeSprite_:
   rts

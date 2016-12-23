@@ -25,6 +25,8 @@ head_hi     .rs 1
 tail_lo     .rs 32 ; max tail len
 tail_hi     .rs 32
 
+tail_dir    .rs 32
+
 fruit_y     .rs 1
 fruit_tile  .rs 1
 fruit_attr  .rs 1
@@ -55,7 +57,7 @@ SNAKE_VY    = $20
 SNAKE_V_I   = $00
 SNAKE_DIR_I = $00
 SNAKE_LEN_I = $00
-SNAKE_LEN_MAX  = $1f  ; 32 - 1 
+SNAKE_LEN_MAX  = $1f  ; 32 - 1
 
 HEAD_B_MIN  = $2380 ; non-inclusive range for head wrapping
 HEAD_T_MAX  = $2040
@@ -85,7 +87,12 @@ FRUIT_TILE_I  = $04
 FRUIT_ATTR_I  = $00
 FRUIT_SEED_I  = $80
 
-SNAKE_TILE_I  = $03
+SNAKE_TILE_U  = $0a
+SNAKE_TILE_D  = $0b
+SNAKE_TILE_L  = $0c
+SNAKE_TILE_R  = $0d
+
+SNAKE_TILE_I  = SNAKE_TILE_R
 SNAKE_ATTR_I  = $00
 
 SNAKE_SPR_T   = $07
