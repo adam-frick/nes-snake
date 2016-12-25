@@ -56,7 +56,7 @@ SNAKE_VY    = $20
 SNAKE_V_I   = $00
 SNAKE_DIR_I = $00
 SNAKE_LEN_I = $02
-SNAKE_LEN_MAX  = $7f  ; 32 - 1
+SNAKE_LEN_MAX  = $ff
 
 HEAD_B_MIN  = $2380 ; non-inclusive range for head wrapping
 HEAD_T_MAX  = $2040

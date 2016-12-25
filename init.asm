@@ -165,15 +165,6 @@ Update:
 Update_:
   lda #$00
   sta ud_state
-
-;; PPU cleanup (NES stats)
-  lda #%10010000    ; enable NMI, spr: table 0, bg: table 1
-  sta $2000
-  lda #%00011110    ; enable spr and bg, no clipping on left 
-  sta $2001
-  lda #$00          ; no bg scrolling
-  sta $2005
-  sta $2005
   
 Loop_:
   jmp Loop
