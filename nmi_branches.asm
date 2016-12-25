@@ -390,6 +390,23 @@ UDControllerLoop:
 DrawSnake:
   lda $2002 ; PPU ready
   
+DrawSnakeSprite:
+  
+
+
+  lda snake_dead
+  cmp #$01
+  beq DrawSnakeSprite_
+
+  lda snake_y
+  sta $0200
+  lda snake_tile
+  sta $0201
+  lda snake_attr
+  sta $0202
+  lda snake_x
+  sta $0203
+DrawSnakeSprite_:
 
 DrawSnakeBG:
 
@@ -428,18 +445,4 @@ BGTaperSmall:
   lda tail_dir, x
   sta $2007
 
-DrawSnakeSprite:
-  lda snake_dead
-  cmp #$01
-  beq DrawSnakeSprite_
-
-  lda snake_y
-  sta $0200
-  lda snake_tile
-  sta $0201
-  lda snake_attr
-  sta $0202
-  lda snake_x
-  sta $0203
-DrawSnakeSprite_:
   rts

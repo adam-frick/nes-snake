@@ -1,7 +1,12 @@
+
   .rsset $0000  ;; vars at beginning of mem
 
+ud_state  .rs 1
 game_state  .rs 1
 game_frame  .rs 1
+
+ptr_lo      .rs 1
+ptr_hi      .rs 1
 
 ; 0: x, 1:y
 snake_v     .rs 1
@@ -22,11 +27,6 @@ ud_bg_only  .rs 1
 head_lo     .rs 1
 head_hi     .rs 1
 
-tail_lo     .rs 32 ; max tail len
-tail_hi     .rs 32
-
-tail_dir    .rs 32
-
 fruit_y     .rs 1
 fruit_tile  .rs 1
 fruit_attr  .rs 1
@@ -38,14 +38,13 @@ fruit_hit   .rs 1
 buttons     .rs 1
 points      .rs 1
 
-ptr_lo      .rs 1
-ptr_hi      .rs 1
 mod_a       .rs 1
 mod_n       .rs 1
 
 ;; CONSTS
 
 PLAY_STATE  = $01
+UD_STATE_I  = $01
 UPF         = $04 ; 15fps (NTSC)
 
 ROW_LEN     = $20
@@ -56,8 +55,8 @@ SNAKE_VY    = $20
 
 SNAKE_V_I   = $00
 SNAKE_DIR_I = $00
-SNAKE_LEN_I = $00
-SNAKE_LEN_MAX  = $1f  ; 32 - 1
+SNAKE_LEN_I = $02
+SNAKE_LEN_MAX  = $7f  ; 32 - 1
 
 HEAD_B_MIN  = $2380 ; non-inclusive range for head wrapping
 HEAD_T_MAX  = $2040
@@ -100,3 +99,9 @@ SNAKE_SPR_B   = $df
 
 TILE_LEN    = $08
 TILE_MOD    = $20
+
+
+  .rsset $0400       ; in PRG RAM
+tail_lo     .rs 256  ; max tail len
+tail_hi     .rs 256
+tail_dir    .rs 256

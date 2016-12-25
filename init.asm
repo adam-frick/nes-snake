@@ -1,5 +1,5 @@
   .bank 0
-  .org $C000
+  .org $8000
 
 Reset:
   sei       ; disable IRQs
@@ -98,6 +98,8 @@ LoadBackgroundIL:
   sta snake_dir
   lda #SNAKE_LEN_I
   sta snake_len
+  lda #$00
+  sta snake_dead
 
   lda #LOW(HEAD_I)
   sta head_lo
@@ -127,8 +129,52 @@ LoadBackgroundIL:
 ;; init state
   lda #PLAY_STATE
   sta game_state
+  lda #UD_STATE_I
+  sta ud_state
 
 Loop:
-  jmp Loop
+  lda ud_state
+  cmp #$01
+  bne Loop_
+;; check if on update frame
+  clc
+  lda game_frame
+  adc #$01
+  sta game_frame
+  and #$07
+  cmp #UPF
+  beq Update
+  jmp Update_
+  
+Update:
+  lda #$00
+  sta game_frame
 
+  jsr UDController
+  jsr UDSnakePos
+  jsr UDSnakeLen
+
+  jsr UDSnakePosSet
+  jsr UpdateSeed
+  jsr UDFruit
+  jsr UDFruitSet
+  jsr UDSnakeLenSet
+  ; at end of loop, turn off draw flag
+  ; wait for next NMI to set flag again
+  ; 
+Update_:
+  lda #$00
+  sta ud_state
+
+;; PPU cleanup (NES stats)
+  lda #%10010000    ; enable NMI, spr: table 0, bg: table 1
+  sta $2000
+  lda #%00011110    ; enable spr and bg, no clipping on left 
+  sta $2001
+  lda #$00          ; no bg scrolling
+  sta $2005
+  sta $2005
+  
+Loop_:
+  jmp Loop
 
