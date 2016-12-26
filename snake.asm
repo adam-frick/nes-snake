@@ -7,7 +7,10 @@
   .include "init.asm" ; sets up PPU
   .include "nmi.asm"  ; runs each vblank
   .include "math.asm" ; modulus and RNG 
-  .include "nmi_branches.asm" ; updates snake
+  .include "update_snake.asm"
+  .include "update_fruit.asm"
+  .include "update.asm"   ; other update routines
+  .include "draw.asm"
 
   .include "tiles.asm"
 
