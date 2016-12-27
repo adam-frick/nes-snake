@@ -20,6 +20,13 @@ UDFruitSet:
   lda #$00
   sta fruit_hit
 
+;; fruit collect SFX
+  lda #%00001000      ; mid freq.
+  ora #%10000000      ; buzz
+  sta $400e
+  lda #%01111000      ; sound length
+  sta $400f
+
 UDFruitX:
   jsr Random
   lda fruit_seed

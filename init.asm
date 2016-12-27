@@ -90,6 +90,15 @@ LoadBackgroundIL:
   lda #$00          ; no bg scrolling
   sta $2005
   sta $2005
+  
+;; init APU
+  lda #%0001000       ; enable noise channel
+  sta $4015
+  lda #%00011111      ; constant and loudest volume
+  sta $400c
+         
+
+
 
 ;; init snake
   lda #SNAKE_V_I
@@ -159,13 +168,9 @@ Update:
   jsr UDFruit
   jsr UDFruitSet
   jsr UDSnakeLenSet
-  ; at end of loop, turn off draw flag
-  ; wait for next NMI to set flag again
-  ; 
 Update_:
   lda #$00
   sta ud_state
   
 Loop_:
   jmp Loop
-
