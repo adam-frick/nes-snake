@@ -1,10 +1,13 @@
 UDSnake: 
 UDSnakePos:
   lda buttons
-  and #$0F  ; only check dir pad
-   
+  and #$0f    ; only check dir pad
+
 ;; check right
-  cmp #B_R 
+  cmp #B_R          ; check if pressed 
+  bne UDSnakePosNR
+  ldx snake_v       ; can only alternate between axes
+  cpx #$01
   bne UDSnakePosNR
 
   pha
@@ -16,8 +19,11 @@ UDSnakePos:
 UDSnakePosNR:
  
 ;; check left
-  cmp #B_L
-  bne  UDSnakePosNL
+  cmp #B_L 
+  bne UDSnakePosNL
+  ldx snake_v
+  cpx #$01
+  bne UDSnakePosNR
 
   pha
   lda #$00
@@ -31,6 +37,9 @@ UDSnakePosNL:
 ;; check up
   cmp #B_U 
   bne UDSnakePosNU
+  ldx snake_v
+  cpx #$00
+  bne UDSnakePosNR
 
   pha
   lda #$01
@@ -41,8 +50,11 @@ UDSnakePosNL:
 UDSnakePosNU:
  
 ;; check down
-  cmp #B_D
-  bne  UDSnakePosND
+  cmp #B_D 
+  bne UDSnakePosND
+  ldx snake_v
+  cpx #$00
+  bne UDSnakePosNR
 
   pha
   lda #$01
