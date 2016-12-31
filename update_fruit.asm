@@ -30,10 +30,6 @@ UDFruitSet:
 UDFruitX:
   jsr Random
   lda fruit_seed
-  ;cmp #$f9
-  ;bcc UDFruitX_
-  ;sec
-  ;sbc #$08
 UDFruitX_
   and #%11111000  ; only multiple of 8
   sta fruit_x

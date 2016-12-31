@@ -1,12 +1,12 @@
 UDController:
   lda #$01  ; latch controllers
-  sta $4016
+  sta JOYPAD
   lda #$00
-  sta $4016
+  sta JOYPAD
 
   ldx #$08
 UDControllerLoop:
-  lda $4016
+  lda JOYPAD
   lsr a
   rol buttons
   dex

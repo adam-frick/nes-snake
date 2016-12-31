@@ -1,15 +1,16 @@
 NMI:
   lda #$00
-  sta $2003   ;RAM lb lda #$02
+  sta OAM_ADDR
   lda #$02
-  sta $4014   ;RAM hb, start transfer
+  sta OAM_DMA
+
   lda #%00011110    ; enable spr and bg, no clipping on left 
-  sta $2001
+  sta PPU_MASK
   lda #%10010000    ; enable NMI, spr: table 0, bg: table 1
-  sta $2000
+  sta PPU_CTRL
   lda #$00          ; no bg scrolling
-  sta $2005
-  sta $2005
+  sta PPU_SCROLL
+  sta PPU_SCROLL
 
   lda #$01
   sta ud_state
@@ -42,16 +43,16 @@ NMIMain_:
 
   
   lda #$00
-  sta $2003   ;RAM lb lda #$02
+  sta OAM_ADDR
   lda #$02
-  sta $4014   ;RAM hb, start transfer
+  sta OAM_DMA
   lda #%00011110    ; enable spr and bg, no clipping on left 
-  sta $2001
+  sta PPU_MASK
   lda #%10010000    ; enable NMI, spr: table 0, bg: table 1
-  sta $2000
+  sta PPU_CTRL
   lda #$00          ; no bg scrolling
-  sta $2005
-  sta $2005
+  sta PPU_SCROLL
+  sta PPU_SCROLL
 
 ; interrupt return
   rti

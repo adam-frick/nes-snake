@@ -9,12 +9,12 @@ Reset:
   ldx #$ff
   txs       ; set up stack
   inx       ; x = 0
-  stx $2000 ; disable NMI
-  stx $2001 ; disable rendering
+  stx PPU_CTRL  ; disable NMI
+  stx PPU_MASK ; disable rendering
   stx $4010 ; disable DMC IRQs
 
 VBlankWait1:  ; make sure PPU is ready
-  bit $2002
+  bit PPU_STATUS
   bpl VBlankWait1
 
 ClearMem:
@@ -84,22 +84,19 @@ LoadBackgroundIL:
 
 ;; init nes
   lda #%10010000    ; enable NMI, spr: table 0, bg: table 1
-  sta $2000
+  sta PPU_CTRL
   lda #%00011110    ; enable spr and bg, no clipping on left 
-  sta $2001
+  sta PPU_MASK
   lda #$00          ; no bg scrolling
-  sta $2005
-  sta $2005
-  
+  sta PPU_SCROLL
+  sta PPU_SCROLL
+
 ;; init APU
   lda #%0001000       ; enable noise channel
   sta $4015
   lda #%00011111      ; constant and loudest volume
   sta $400c
          
-
-
-
 ;; init snake
   lda #SNAKE_V_I
   sta snake_v

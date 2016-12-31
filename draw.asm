@@ -1,5 +1,7 @@
 
 DrawFruit:
+
+;; drawing fruit sprite
   lda fruit_y
   sta $0204
   lda fruit_tile
@@ -11,13 +13,14 @@ DrawFruit:
   rts
 
 DrawSnake:
-  lda $2002 ; PPU ready
+  lda PPU_STATUS  ; PPU ready 
   
 DrawSnakeSprite:
   lda snake_dead
   cmp #$01
   beq DrawSnakeSprite_
 
+;; drawing snake head sprite
   lda snake_y
   sta $0200
   lda snake_tile
@@ -29,38 +32,41 @@ DrawSnakeSprite:
 DrawSnakeSprite_:
 
 DrawSnakeBG:
+
+;; draw beginning of snake tail (if applicable)
   lda snake_dead
   cmp #$01
   beq DrawSnakeBG_
 
   lda tail_hi
-  sta $2006
+  sta PPU_ADDR
   lda tail_lo
-  sta $2006
+  sta PPU_ADDR
 
   lda #SNAKE_CLR
-  sta $2007
+  sta PPU_DATA
+
 DrawSnakeBG_:
 
   ldx snake_len
   lda tail_hi, x
-  sta $2006
+  sta PPU_ADDR
   lda tail_lo, x
-  sta $2006
+  sta PPU_ADDR
   lda #BG_CLR
-  sta $2007
+  sta PPU_DATA
 
 DrawSnakeBGTaper:
   dex
   lda tail_hi, x
-  sta $2006
+  sta PPU_ADDR
   lda tail_lo, x
-  sta $2006
+  sta PPU_ADDR
 
   cpx #$00
   beq BGTaperSmall
   dex
 BGTaperSmall:
   lda tail_dir, x
-  sta $2007
+  sta PPU_DATA
   rts

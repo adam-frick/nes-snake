@@ -1,4 +1,3 @@
-
   .rsset $0000  ;; vars at beginning of mem
 
 ud_state  .rs 1
@@ -43,6 +42,16 @@ mod_n       .rs 1
 
 ;; CONSTS
 
+PPU_CTRL    = $2000
+PPU_MASK    = $2001
+PPU_STATUS  = $2002
+OAM_ADDR    = $2003
+OAM_DATA    = $2004
+PPU_SCROLL  = $2005
+PPU_ADDR    = $2006
+PPU_DATA    = $2007
+OAM_DMA     = $4014
+
 PLAY_STATE  = $01
 UD_STATE_I  = $01
 UPF         = $04 ; 15fps (NTSC)
@@ -67,6 +76,7 @@ HEAD_I      = $2020
 SNAKE_X_I   = $00
 SNAKE_Y_I   = $07
 
+JOYPAD      = $4016
 B_A         = %10000000
 B_B         = %01000000
 B_SELECT    = %00100000

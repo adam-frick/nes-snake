@@ -3,6 +3,7 @@ UDSnakePos:
   lda buttons
   and #$0f    ; only check dir pad
 
+; todo: prevent changing direction even between non-drawing frames
 ;; check right
   cmp #B_R          ; check if pressed 
   bne UDSnakePosNR
@@ -296,6 +297,8 @@ UDSnakeLenSet_:
   rts
 
 UDSnakeDeath:
+
+;; checking if beginning of tail has reached end
   lda snake_len
   inx
   lda tail_hi
@@ -305,13 +308,15 @@ UDSnakeDeath:
   cmp tail_lo, x
   bne UDSnakeDeath_
 
+;; writing snake tail tile data
   lda tail_hi, x
-  sta $2006
+  sta PPU_ADDR
   lda tail_lo, x
-  sta $2006
+  sta PPU_ADDR
   lda #BG_CLR
-  sta $2007
+  sta PPU_DATA
 
+;; writing snake sprite data
   lda snake_y
   sta $0200
   lda #$00
