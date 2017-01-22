@@ -41,7 +41,6 @@ Draw:
 
 NMIMain_:
 
-  
   lda #$00
   sta OAM_ADDR
   lda #$02

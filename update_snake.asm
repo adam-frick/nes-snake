@@ -74,8 +74,8 @@ UDSnakePosSet:
   sec
   sbc #$01
   tax
-UDSnakePosSetLoop:    ; todo: quite expensive, doesn't keep up with ~35+,
-  cpx #$ff            ; could update over course of 2 vblanks (30fps max)
+UDSnakePosSetLoop:
+  cpx #$ff
   beq UDSnakePosSetLoop_ 
 
   lda tail_hi,x

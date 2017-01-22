@@ -96,6 +96,10 @@ LoadBackgroundIL:
   sta $4015
   lda #%00011111      ; constant and loudest volume
   sta $400c
+
+  lda #%00001000      ; mid freq.
+  ora #%10000000      ; buzz
+  sta $400e
          
 ;; init snake
   lda #SNAKE_V_I
